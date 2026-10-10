@@ -15,7 +15,7 @@ import { mostrarCatalogo, useCatalogo } from '../lib/catalogo'
 import { movimentoReduzido, useCelular } from '../lib/midia'
 import { PROPORCAO } from '../lib/cartao'
 import { SetaDireita, SetaEsquerda } from '../components/icones'
-import { GuiaRolar, Ima } from '../components/Vivos'
+import { Ima } from '../components/Vivos'
 import { Letreiro, type Sentido } from '../components/Letreiro'
 import { CircularGallery, type CircularGalleryHandle, type GalleryItem } from '../components/ui/circular-gallery'
 import { comBase } from '../lib/base'
@@ -89,55 +89,19 @@ export function Looks() {
     const mm = gsap.matchMedia()
     mm.add(
       { desk: '(min-width: 861px) and (min-aspect-ratio: 11/10)', cel: '(max-width: 860px), (max-aspect-ratio: 11/10)' },
-      (ctx) => {
-        const { desk } = ctx.conditions as { desk: boolean }
+      () => {
         if (movimentoReduzido()) return
-        const estado = { revelar: 0 }
-        let aberto: boolean | null = null
-
-        // 0: só o look da abertura, no mesmo tamanho e lugar; 1: o anel inteiro com as informações
-        const aplicar = () => {
-          el.style.setProperty('--revelar', estado.revelar.toFixed(3))
-          const agora = estado.revelar > 0.6
-          el.dataset.revelado = agora ? 'sim' : 'nao'
-          galeria.current?.reveal(estado.revelar)
-          // o nome da coleção se escreve quando o letreiro aparece (e sai quando volta para a abertura)
-          if (agora !== aberto) {
-            aberto = agora
-            setRevelado(agora)
-          }
-        }
-
-        const tl = gsap.timeline({
-          defaults: { ease: 'none' },
-          onUpdate: aplicar,
-          scrollTrigger: {
-            id: 'colecoes',
-            trigger: el,
-            start: 'top top',
-            end: () => '+=' + el.clientHeight * (desk ? 0.4 : 0.35),
-            pin: true,
-            scrub: 0.5,
-            invalidateOnRefresh: true,
-            onRefresh: aplicar,
-            onToggle: (st) => (el.style.visibility = st.isActive || st.progress > 0 ? 'visible' : 'hidden'),
-            onLeaveBack: () => {
-              el.style.visibility = 'hidden'
-              // de volta à abertura: a Lúmina precisa estar de frente para a passagem continuar sem corte
-              galeria.current?.goTo(0, { instant: true })
-            },
-          },
+        // sem passagem: o carrossel chega aberto, como uma seção comum logo depois da abertura;
+        // o nome da coleção se escreve quando ele entra na tela
+        ScrollTrigger.create({
+          id: 'colecoes',
+          trigger: el,
+          start: 'top 60%',
+          end: 'top top',
+          onEnter: () => setRevelado(true),
+          onLeaveBack: () => setRevelado(false),
         })
-        el.style.visibility = 'hidden'
-        tl.to(estado, { revelar: 1, duration: 0.75, ease: 'power2.inOut' }).to({}, { duration: 0.25 })
-        aplicar()
-        return () => {
-          el.style.visibility = ''
-          el.style.removeProperty('--revelar')
-          delete el.dataset.revelado
-          galeria.current?.reveal(1)
-          setRevelado(true)
-        }
+        return () => setRevelado(true)
       },
     )
     return () => mm.revert()
@@ -149,12 +113,11 @@ export function Looks() {
   }
 
   return (
-    <section className="lk" id="colecoes" aria-label="As coleções">
+    <section className="lk" id="colecoes" aria-label="As coleções" style={{ '--fundo': atual.fundo } as React.CSSProperties}>
       <div
         className="lk-palco"
         ref={palco}
         data-tema={atual.tema}
-        style={{ '--fundo': atual.fundo } as React.CSSProperties}
       >
         <div className="lk-anel">
           <CircularGallery
@@ -168,9 +131,6 @@ export function Looks() {
             onItemClick={(i, img) => mostrarCatalogo(colecoes[i].slug, img)}
           />
         </div>
-
-        {/* continua o convite que surge no fim da abertura e some quando o anel abre */}
-        <GuiaRolar ar={PROPORCAO[colecoes[0].slug]} />
 
         <div className="lk-barra">
           <Ima forca={0.3}>

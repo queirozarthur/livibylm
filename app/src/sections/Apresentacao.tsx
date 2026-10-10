@@ -49,7 +49,7 @@ export function Apresentacao() {
             trigger: el,
             start: 'top top',
             // no celular a passagem é um pouco mais curta: lá se desliza rápido e a trava longa cansa
-            end: () => '+=' + H() * (desk ? 1.3 : 1.1),
+            end: () => '+=' + H() * (desk ? 1.0 : 0.85),
             pin: true,
             scrub: 0.5,
             anticipatePin: 1,
@@ -77,15 +77,9 @@ export function Apresentacao() {
           { scale: 0.86, yPercent: -3, opacity: 0, transformOrigin: '50% 100%', duration: 0.45, ease: 'power2.in' },
           0.1,
         )
-        tl.to(q('.ap-cor'), { opacity: 1, duration: 0.55 }, 0.25)
-        tl.fromTo(
-          q('.ap-look'),
-          { scale: 0.72, y: 60, opacity: 0 },
-          { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', immediateRender: true },
-          0.5,
-        )
-        // o look chegou sozinho ao centro: o convite para continuar rolando aparece dos lados
-        tl.fromTo(q('.guia-rolar'), { opacity: 0 }, { opacity: 1, duration: 0.25, immediateRender: true }, 0.85)
+        tl.to(q('.ap-cor'), { opacity: 1, duration: 0.3 }, 0.25)
+        // fim parado só com a cor de fundo: é aí que as coleções sobem por cima (margin-top negativo do .lk)
+        tl.to({}, { duration: 0.35 })
       },
     )
 

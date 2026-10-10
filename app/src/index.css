@@ -793,6 +793,18 @@ img {
   z-index: 2;
 }
 
+/* a cor das coleções começa aos poucos acima da seção: sem linha ao subir por cima da abertura */
+.lk::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 45svh;
+  background: linear-gradient(to bottom, transparent, var(--fundo));
+  pointer-events: none;
+}
+
 .lk-palco {
   /* 0 = só o look da abertura; 1 = o anel aberto (a rolagem leva de um ao outro) */
   --revelar: 1;
@@ -2748,9 +2760,10 @@ html[data-transicao='catalogo'] .cat-trilho > li:first-child .cat-card-foto img 
   }
 }
 
-/* as coleções encostam no fim da abertura (computador e celular) */
+
+/* as coleções sobem por cima do fim da abertura (a tela que sobra só com a cor de fundo) */
 html[data-movimento='livre'] .lk {
-  margin-top: -100svh;
+  margin-top: -50svh;
 }
 
 /* ============================================================
